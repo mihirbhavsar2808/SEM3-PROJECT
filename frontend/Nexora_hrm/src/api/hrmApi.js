@@ -113,6 +113,13 @@ export async function fetchAnnouncements() {
   return request("/announcements/");
 }
 
+export async function createAnnouncement(data) {
+  return request("/announcements/", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
 // Assets
 export async function fetchAssets() {
   return request("/assets/");

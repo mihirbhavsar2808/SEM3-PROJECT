@@ -1,6 +1,6 @@
 import {
   LayoutDashboard, Users, CalendarCheck, CalendarDays,
-  Wallet, Building2, Briefcase, Star, Settings,
+  Wallet, Building2, Briefcase, Star, Settings,CreditCard 
 } from "lucide-react";
 
 export const C = {
@@ -30,14 +30,25 @@ export const AVATAR_PALETTE = [
   { bg: "#E8F4FB", fg: "#1471A8" },
 ];
 
-export const NAV = [
-  { key: "dashboard",   label: "Dashboard",   icon: LayoutDashboard },
-  { key: "employees",   label: "Employees",   icon: Users },
-  { key: "attendance",  label: "Attendance",  icon: CalendarCheck },
-  { key: "leave",       label: "Leave",       icon: CalendarDays },
-  { key: "payroll",     label: "Payroll",     icon: Wallet },
-  { key: "departments", label: "Departments", icon: Building2 },
-  { key: "recruitment", label: "Recruitment", icon: Briefcase },
-  { key: "performance", label: "Performance", icon: Star },
-  { key: "settings",    label: "Settings",    icon: Settings },
+export const ADMIN_NAV = [
+  { key: "dashboard",    label: "Dashboard",       icon: LayoutDashboard },
+  { key: "subscription", label: "Subscription",    icon: CreditCard },
+  { key: "employees",    label: "Employees",       icon: Users },
+  { key: "attendance",   label: "Attendance",      icon: CalendarCheck },
+  { key: "leave",        label: "Leave Approvals", icon: CalendarDays },
+  { key: "payroll",      label: "Payroll",         icon: Wallet },
+  { key: "departments",  label: "Departments",     icon: Building2 },
+  { key: "recruitment",  label: "Recruitment",     icon: Briefcase },
+  { key: "performance",  label: "Performance",     icon: Star },
+  { key: "settings",     label: "Settings",        icon: Settings },
 ];
+
+export const USER_NAV = [
+  { key: "user-dashboard",  label: "My Dashboard",      icon: LayoutDashboard },
+  { key: "user-leave",      label: "My Leaves & Apply", icon: CalendarDays },
+  { key: "user-attendance", label: "My Attendance",     icon: CalendarCheck },
+  { key: "user-profile",    label: "My Profile",        icon: Users },
+];
+
+export const NAV = ADMIN_NAV;
+

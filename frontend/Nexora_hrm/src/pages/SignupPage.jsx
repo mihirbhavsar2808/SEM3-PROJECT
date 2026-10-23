@@ -41,9 +41,9 @@ export default function SignupPage({ onSignup, onNavigateLogin }) {
         <div style={{ width: 380, maxWidth: "100%" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 30 }}>
             <div style={{ width: 34, height: 34, borderRadius: 8, background: C.ink, display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <span style={{ color: C.teal, fontFamily: "Sora, sans-serif", fontWeight: 800 }}>N</span>
+              <span style={{ color: C.teal, fontFamily: "Sora, sans-serif", fontWeight: 800 }}>O</span>
             </div>
-            <span style={{ fontFamily: "Sora, sans-serif", fontWeight: 700, fontSize: 18, color: C.ink }}>Nexora HRM</span>
+            <span style={{ fontFamily: "Sora, sans-serif", fontWeight: 700, fontSize: 18, color: C.ink }}>ORbit HRM</span>
           </div>
 
           <h1 style={{ fontFamily: "Sora, sans-serif", fontSize: 26, fontWeight: 700, color: C.ink, margin: "0 0 6px" }}>Create an account</h1>
@@ -81,7 +81,7 @@ export default function SignupPage({ onSignup, onNavigateLogin }) {
         <div style={{ position: "absolute", width: 360, height: 360, borderRadius: "50%", border: "1px solid rgba(255,255,255,0.08)", top: -60, right: -60 }} />
         <div style={{ position: "absolute", width: 220, height: 220, borderRadius: "50%", border: "1px solid rgba(31,138,112,0.35)", bottom: -40, left: -20 }} />
         <div style={{ maxWidth: 380, padding: 40, position: "relative" }}>
-          <p style={{ color: C.teal, fontFamily: "IBM Plex Mono, monospace", fontSize: 12.5, letterSpacing: 1, marginBottom: 14 }}>JOIN NEXORA</p>
+          <p style={{ color: C.teal, fontFamily: "IBM Plex Mono, monospace", fontSize: 12.5, letterSpacing: 1, marginBottom: 14 }}>JOIN ORBIT</p>
           <h2 style={{ color: "#fff", fontFamily: "Sora, sans-serif", fontSize: 28, fontWeight: 700, lineHeight: 1.3 }}>
             Start managing your workforce better today.
           </h2>

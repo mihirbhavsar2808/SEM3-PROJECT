@@ -4,11 +4,30 @@ from .models import User
 
 class UserSerializer(serializers.ModelSerializer):
     full_name = serializers.CharField(read_only=True)
+    employee_profile = serializers.SerializerMethodField()
 
     class Meta:
         model  = User
-        fields = ("id", "email", "first_name", "last_name", "full_name", "role", "is_active", "date_joined")
+        fields = ("id", "email", "first_name", "last_name", "full_name", "role", "is_active", "date_joined", "employee_profile")
         read_only_fields = ("id", "date_joined")
+
+    def get_employee_profile(self, obj):
+        try:
+            from hrm.models import Employee
+            emp = Employee.objects.filter(email__iexact=obj.email).first()
+            if emp:
+                return {
+                    "id": emp.id,
+                    "employee_code": emp.employee_code,
+                    "name": emp.name,
+                    "department": emp.department.name if emp.department else "",
+                    "role": emp.role,
+                    "salary": str(emp.salary),
+                    "phone": emp.phone,
+                }
+        except Exception:
+            pass
+        return None
 
 
 class RegisterSerializer(serializers.ModelSerializer):

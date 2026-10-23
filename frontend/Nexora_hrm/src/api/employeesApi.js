@@ -24,3 +24,10 @@ export async function deleteEmployee(id) {
     method: "DELETE",
   });
 }
+
+export async function sendWelcomeEmail(id) {
+  return request(`/employees/${id}/send_welcome_email/`, {
+    method: "POST",
+  });
+}
+

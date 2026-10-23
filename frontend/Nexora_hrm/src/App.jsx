@@ -26,10 +26,17 @@ import DepartmentsPage  from "./pages/DepartmentsPage";
 import RecruitmentPage  from "./pages/RecruitmentPage";
 import PerformancePage  from "./pages/PerformancePage";
 import SettingsPage   from "./pages/SettingsPage";
+import SubscriptionPage from "./pages/SubscriptionPage";
+
+// User Portal Pages
+import UserDashboardPage  from "./pages/UserDashboardPage";
+import UserLeavePage      from "./pages/UserLeavePage";
+import UserAttendancePage from "./pages/UserAttendancePage";
+import UserProfilePage    from "./pages/UserProfilePage";
 
 function useFonts() {
   useEffect(() => {
-    const id = "nexora-fonts";
+    const id = "orbit-fonts";
     if (document.getElementById(id)) return;
     const link = document.createElement("link");
     link.id   = id;
@@ -39,12 +46,67 @@ function useFonts() {
   }, []);
 }
 
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+  componentDidCatch(error, errorInfo) {
+    console.error("ErrorBoundary caught error:", error, errorInfo);
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#f8fafc", padding: 20, fontFamily: "Inter, sans-serif" }}>
+          <div style={{ maxWidth: 500, width: "100%", background: "#fff", padding: "32px 28px", borderRadius: 16, border: "1px solid #e2e8f0", boxShadow: "0 10px 25px -5px rgba(0,0,0,0.06)", textAlign: "center" }}>
+            <div style={{ width: 56, height: 56, borderRadius: "50%", background: "#fee2e2", color: "#ef4444", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px", fontSize: 24, fontWeight: "bold" }}>
+              !
+            </div>
+            <h2 style={{ fontFamily: "Sora, sans-serif", fontSize: 20, fontWeight: 700, color: "#0f172a", margin: "0 0 8px" }}>
+              Application Notice
+            </h2>
+            <p style={{ color: "#64748b", fontSize: 13.5, lineHeight: 1.5, margin: "0 0 20px" }}>
+              {this.state.error?.message || "An error occurred while loading this view."}
+            </p>
+            <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
+              <button
+                type="button"
+                onClick={() => {
+                  this.setState({ hasError: false, error: null });
+                  window.location.href = "/dashboard";
+                }}
+                style={{ padding: "10px 18px", borderRadius: 8, background: "#0f172a", color: "#fff", border: "none", cursor: "pointer", fontWeight: 600, fontSize: 13.5 }}
+              >
+                Go to Dashboard
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  this.setState({ hasError: false, error: null });
+                  window.location.reload();
+                }}
+                style={{ padding: "10px 18px", borderRadius: 8, background: "#f1f5f9", color: "#334155", border: "1px solid #cbd5e1", cursor: "pointer", fontWeight: 600, fontSize: 13.5 }}
+              >
+                Reload Page
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 function AppShell() {
   const navigate = useNavigate();
   const location = useLocation();
 
   const [authed, setAuthed] = useState(
-    () => !!localStorage.getItem("nexora_access_token")
+    () => !!(localStorage.getItem("orbit_access_token") || localStorage.getItem("nexora_access_token"))
   );
 
   const [user, setUser] = useState(
@@ -53,15 +115,16 @@ function AppShell() {
 
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
+  const isEmployee = user?.role === "employee";
+
   /*
    * Get current page from browser URL.
    * Example: /dashboard -> dashboard
    */
-  const page = location.pathname.split("/")[1] || "dashboard";
+  const page = location.pathname.split("/")[1] || (isEmployee ? "user-dashboard" : "dashboard");
 
   /*
-   * Replaces old useState-based setPage().
-   * Example: setPage("employees") -> navigates to /employees
+   * Navigate handler
    */
   const setPage = (newPage) => {
     navigate(`/${newPage}`);
@@ -69,9 +132,14 @@ function AppShell() {
 
   /* LOGIN */
   const handleLogin = (userData) => {
-    setUser(userData || getCurrentStoredUser());
+    const u = userData || getCurrentStoredUser();
+    setUser(u);
     setAuthed(true);
-    navigate("/dashboard");
+    if (u?.role === "employee") {
+      navigate("/user-dashboard");
+    } else {
+      navigate("/dashboard");
+    }
   };
 
   /* LOGOUT */
@@ -109,9 +177,11 @@ function AppShell() {
     );
   }
 
-  const currentUserName = user
-    ? `${user.first_name || ""} ${user.last_name || ""}`.trim() || user.email
-    : "Priya Nair";
+  const currentUserName = user?.employee?.name || (
+    user
+      ? `${user.first_name || ""} ${user.last_name || ""}`.trim() || user.email
+      : "User"
+  );
 
   return (
     <div style={{ display: "flex", background: C.canvas, minHeight: "100vh" }}>
@@ -122,6 +192,7 @@ function AppShell() {
         open={sidebarOpen}
         onToggle={() => setSidebarOpen((o) => !o)}
         onLogout={handleLogout}
+        user={user}
       />
 
       {/* MAIN CONTENT */}
@@ -130,69 +201,68 @@ function AppShell() {
         <TopBar
           onMenu={() => setSidebarOpen((o) => !o)}
           currentUser={currentUserName}
+          user={user}
           setPage={setPage}
+          onLogout={handleLogout}
         />
 
         {/* PAGE CONTENT */}
         <div style={{ padding: 26, flex: 1 }}>
           <Routes>
 
-            {/* DASHBOARD */}
+            {/* USER / EMPLOYEE ROUTES */}
+            <Route path="/user-dashboard"  element={<UserDashboardPage setPage={setPage} />} />
+            <Route path="/user-leave"      element={<UserLeavePage />} />
+            <Route path="/user-attendance" element={<UserAttendancePage />} />
+            <Route path="/user-profile"    element={<UserProfilePage />} />
+
+            {/* ADMIN ROUTES (Protected from employee access) */}
             <Route
               path="/dashboard"
-              element={<DashboardPage setPage={setPage} />}
+              element={isEmployee ? <Navigate to="/user-dashboard" replace /> : <DashboardPage setPage={setPage} />}
             />
-
-            {/* EMPLOYEES */}
             <Route
               path="/employees"
-              element={<EmployeesPage />}
+              element={isEmployee ? <Navigate to="/user-dashboard" replace /> : <EmployeesPage />}
             />
-
-            {/* ATTENDANCE */}
             <Route
               path="/attendance"
-              element={<AttendancePage />}
+              element={isEmployee ? <Navigate to="/user-attendance" replace /> : <AttendancePage />}
             />
-
-            {/* LEAVE */}
             <Route
               path="/leave"
-              element={<LeavePage />}
+              element={isEmployee ? <Navigate to="/user-leave" replace /> : <LeavePage />}
             />
-
-            {/* PAYROLL */}
             <Route
               path="/payroll"
-              element={<PayrollPage />}
+              element={isEmployee ? <Navigate to="/user-dashboard" replace /> : <PayrollPage />}
             />
-
-            {/* DEPARTMENTS */}
             <Route
               path="/departments"
-              element={<DepartmentsPage />}
+              element={isEmployee ? <Navigate to="/user-dashboard" replace /> : <DepartmentsPage />}
             />
-
-            {/* RECRUITMENT */}
             <Route
               path="/recruitment"
-              element={<RecruitmentPage />}
+              element={isEmployee ? <Navigate to="/user-dashboard" replace /> : <RecruitmentPage />}
             />
-
-            {/* PERFORMANCE */}
             <Route
               path="/performance"
-              element={<PerformancePage />}
+              element={isEmployee ? <Navigate to="/user-dashboard" replace /> : <PerformancePage />}
             />
-
-            {/* SETTINGS */}
             <Route
               path="/settings"
               element={<SettingsPage />}
             />
+            <Route
+              path="/subscription"
+              element={isEmployee ? <Navigate to="/user-dashboard" replace /> : <SubscriptionPage />}
+            />
 
-            {/* UNKNOWN URL → redirect to dashboard */}
-            <Route path="*" element={<Navigate to="/dashboard" replace />} />
+            {/* UNKNOWN URL → redirect based on role */}
+            <Route
+              path="*"
+              element={<Navigate to={isEmployee ? "/user-dashboard" : "/dashboard"} replace />}
+            />
 
           </Routes>
         </div>
@@ -207,7 +277,9 @@ export default function App() {
   return (
     <BrowserRouter>
       <ToastProvider>
-        <AppShell />
+        <ErrorBoundary>
+          <AppShell />
+        </ErrorBoundary>
       </ToastProvider>
     </BrowserRouter>
   );

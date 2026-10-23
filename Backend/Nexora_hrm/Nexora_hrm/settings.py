@@ -62,11 +62,14 @@ TEMPLATES = [
 WSGI_APPLICATION = "Nexora_hrm.wsgi.application"
 
 # ── Database ─────────────────────────────────────────────────────────────────
+_db_engine = os.getenv("DB_ENGINE", "")
 _db_name = os.getenv("DB_NAME", "")
-if _db_name:
+if "sqlite" in _db_engine or not _db_name or _db_name.endswith(".sqlite3"):
+    DATABASES = {"default": {"ENGINE": "django.db.backends.sqlite3", "NAME": BASE_DIR / "db.sqlite3"}}
+else:
     DATABASES = {
         "default": {
-            "ENGINE":   os.getenv("DB_ENGINE", "django.db.backends.postgresql"),
+            "ENGINE":   _db_engine or "django.db.backends.postgresql",
             "NAME":     _db_name,
             "USER":     os.getenv("DB_USER", ""),
             "PASSWORD": os.getenv("DB_PASSWORD", ""),
@@ -74,8 +77,6 @@ if _db_name:
             "PORT":     os.getenv("DB_PORT", "5432"),
         }
     }
-else:
-    DATABASES = {"default": {"ENGINE": "django.db.backends.sqlite3", "NAME": BASE_DIR / "db.sqlite3"}}
 
 AUTH_USER_MODEL = "accounts.User"
 
@@ -144,6 +145,8 @@ EMAIL_BACKEND       = os.getenv("EMAIL_BACKEND", "django.core.mail.backends.cons
 EMAIL_HOST          = os.getenv("EMAIL_HOST", "smtp.gmail.com")
 EMAIL_PORT          = int(os.getenv("EMAIL_PORT", 587))
 EMAIL_USE_TLS       = True
-EMAIL_HOST_USER     = os.getenv("EMAIL_HOST_USER", "")
+EMAIL_HOST_USER     = os.getenv("EMAIL_HOST_USER", "2504070100354@silveroakuni.ac.in")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "")
-DEFAULT_FROM_EMAIL  = os.getenv("DEFAULT_FROM_EMAIL", "noreply@nexorahrm.com")
+DEFAULT_FROM_EMAIL  = os.getenv("DEFAULT_FROM_EMAIL", "ORbit HRM <2504070100354@silveroakuni.ac.in>")
+FRONTEND_URL        = os.getenv("FRONTEND_URL", "http://localhost:5173")
+

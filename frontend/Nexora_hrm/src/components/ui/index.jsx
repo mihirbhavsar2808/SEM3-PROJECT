@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import { createPortal } from "react-dom";
-import { X } from "lucide-react";
+import { X, Eye, EyeOff } from "lucide-react";
 import { C } from "../../constants/theme";
 import { avatarColor, initials } from "../../utils/helpers";
 
@@ -65,22 +65,112 @@ export function Button({ children, onClick, variant = "primary", icon: Icon, sma
   );
 }
 
-export function Input({ label, ...props }) {
+export function Input({ label, type = "text", rightElement, error, required, style, ...props }) {
+  const [showPassword, setShowPassword] = useState(false);
+  const isPasswordField = type === "password";
+  const effectiveType = isPasswordField && !rightElement ? (showPassword ? "text" : "password") : type;
+  const hasRightElement = Boolean(rightElement || isPasswordField);
+
   return (
     <label style={{ display: "block", marginBottom: 14 }}>
-      {label && <span style={{ display: "block", fontFamily: "Inter, sans-serif", fontSize: 12.5, fontWeight: 600, color: C.slate, marginBottom: 5 }}>{label}</span>}
-      <input {...props} style={{ width: "100%", boxSizing: "border-box", fontFamily: "Inter, sans-serif", fontSize: 14, padding: "9px 12px", borderRadius: 7, border: `1px solid ${C.border}`, outline: "none", color: C.ink }} />
+      {label && (
+        <span style={{ display: "block", fontFamily: "Inter, sans-serif", fontSize: 12.5, fontWeight: 600, color: C.slate, marginBottom: 5 }}>
+          {label} {required && <span style={{ color: C.coral }}>*</span>}
+        </span>
+      )}
+      <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
+        <input
+          {...props}
+          type={effectiveType}
+          style={{
+            width: "100%",
+            boxSizing: "border-box",
+            fontFamily: "Inter, sans-serif",
+            fontSize: 14,
+            padding: "9px 12px",
+            paddingRight: hasRightElement ? 38 : 12,
+            borderRadius: 7,
+            border: `1px solid ${error ? C.coral : C.border}`,
+            boxShadow: error ? "0 0 0 2px rgba(196,67,47,0.12)" : "none",
+            outline: "none",
+            color: C.ink,
+            ...style,
+          }}
+        />
+        {rightElement ? (
+          <div style={{ position: "absolute", right: 10, display: "flex", alignItems: "center" }}>
+            {rightElement}
+          </div>
+        ) : isPasswordField ? (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              setShowPassword((v) => !v);
+            }}
+            aria-label={showPassword ? "Hide password" : "Show password"}
+            style={{
+              position: "absolute",
+              right: 10,
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              padding: 4,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: showPassword ? C.teal : C.slateLight,
+            }}
+          >
+            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+          </button>
+        ) : null}
+      </div>
+      {error && (
+        <span style={{ display: "block", color: C.coral, fontSize: 11.5, marginTop: 4, fontFamily: "Inter, sans-serif" }}>
+          {error}
+        </span>
+      )}
     </label>
   );
 }
 
-export function Select({ label, options, ...props }) {
+export function Select({ label, options, error, required, style, ...props }) {
   return (
     <label style={{ display: "block", marginBottom: 14 }}>
-      {label && <span style={{ display: "block", fontFamily: "Inter, sans-serif", fontSize: 12.5, fontWeight: 600, color: C.slate, marginBottom: 5 }}>{label}</span>}
-      <select {...props} style={{ width: "100%", boxSizing: "border-box", fontFamily: "Inter, sans-serif", fontSize: 14, padding: "9px 12px", borderRadius: 7, border: `1px solid ${C.border}`, outline: "none", color: C.ink, background: "#fff" }}>
-        {options.map((o) => <option key={o} value={o}>{o}</option>)}
+      {label && (
+        <span style={{ display: "block", fontFamily: "Inter, sans-serif", fontSize: 12.5, fontWeight: 600, color: C.slate, marginBottom: 5 }}>
+          {label} {required && <span style={{ color: C.coral }}>*</span>}
+        </span>
+      )}
+      <select
+        {...props}
+        style={{
+          width: "100%",
+          boxSizing: "border-box",
+          fontFamily: "Inter, sans-serif",
+          fontSize: 14,
+          padding: "9px 12px",
+          borderRadius: 7,
+          border: `1px solid ${error ? C.coral : C.border}`,
+          boxShadow: error ? "0 0 0 2px rgba(196,67,47,0.12)" : "none",
+          outline: "none",
+          color: C.ink,
+          background: "#fff",
+          ...style,
+        }}
+      >
+        {options.map((o) => (
+          <option key={o} value={o}>
+            {o}
+          </option>
+        ))}
       </select>
+      {error && (
+        <span style={{ display: "block", color: C.coral, fontSize: 11.5, marginTop: 4, fontFamily: "Inter, sans-serif" }}>
+          {error}
+        </span>
+      )}
     </label>
   );
 }
@@ -91,11 +181,25 @@ export function Table({ columns, rows, renderRow }) {
       <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: "Inter, sans-serif", fontSize: 13.5 }}>
         <thead>
           <tr>
-            {columns.map((c) => (
-              <th key={c} style={{ textAlign: "left", padding: "10px 14px", color: C.slateLight, fontWeight: 600, fontSize: 12, textTransform: "uppercase", letterSpacing: 0.4, borderBottom: `1px solid ${C.border}` }}>
+            {columns.map((c, idx) => (
+              <th
+                key={c || idx}
+                style={{
+                  textAlign: idx === columns.length - 1 && (c === "Actions" || c === "Action" || !c) ? "right" : "left",
+                  padding: "10px 14px",
+                  color: C.slateLight,
+                  fontWeight: 600,
+                  fontSize: 12,
+                  textTransform: "uppercase",
+                  letterSpacing: 0.4,
+                  borderBottom: `1px solid ${C.border}`,
+                  whiteSpace: "nowrap",
+                }}
+              >
                 {c}
               </th>
             ))}
+
           </tr>
         </thead>
         <tbody>{rows.map(renderRow)}</tbody>
@@ -152,3 +256,5 @@ export function StatCard({ label, value, delta, positive, icon: Icon, accent }) 
     </Card>
   );
 }
+
+export { default as PhoneInput, validatePhone, parsePhoneNumber, COUNTRIES } from "./PhoneInput";

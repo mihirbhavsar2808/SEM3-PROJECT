@@ -1,19 +1,28 @@
 const BASE_URL = "http://127.0.0.1:8000/api";
 
 export function getAccessToken() {
-  return localStorage.getItem("nexora_access_token");
+  return localStorage.getItem("orbit_access_token") || localStorage.getItem("nexora_access_token");
 }
 
 export function getRefreshToken() {
-  return localStorage.getItem("nexora_refresh_token");
+  return localStorage.getItem("orbit_refresh_token") || localStorage.getItem("nexora_refresh_token");
 }
 
 export function setTokens(access, refresh) {
-  if (access) localStorage.setItem("nexora_access_token", access);
-  if (refresh) localStorage.setItem("nexora_refresh_token", refresh);
+  if (access) {
+    localStorage.setItem("orbit_access_token", access);
+    localStorage.setItem("nexora_access_token", access);
+  }
+  if (refresh) {
+    localStorage.setItem("orbit_refresh_token", refresh);
+    localStorage.setItem("nexora_refresh_token", refresh);
+  }
 }
 
 export function clearTokens() {
+  localStorage.removeItem("orbit_access_token");
+  localStorage.removeItem("orbit_refresh_token");
+  localStorage.removeItem("orbit_user");
   localStorage.removeItem("nexora_access_token");
   localStorage.removeItem("nexora_refresh_token");
   localStorage.removeItem("nexora_user");

@@ -1,32 +1,27 @@
 import React, { useState, useEffect } from "react";
-import { Users, CalendarCheck, CalendarDays, Briefcase, Plus, Download, UserCheck } from "lucide-react";
+import { Users, CalendarCheck, CalendarDays, Briefcase, Plus, Download, UserCheck, AlertTriangle, X, CreditCard } from "lucide-react";
 import {
   LineChart, Line, BarChart, Bar, PieChart, Pie, Cell,
   XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend,
 } from "recharts";
 import { C } from "../constants/theme";
-import { JOBS_SEED } from "../data/mockData";
 import { statusTone, fmtMoney } from "../utils/helpers";
 import { Card, PageHeader, StatCard, Table, Avatar, Pill, EmptyState, Button } from "../components/ui";
 import { fetchEmployees } from "../api/employeesApi";
 import { fetchDepartments } from "../api/departmentsApi";
 import { fetchLeaves } from "../api/leavesApi";
 import { fetchAttendance } from "../api/attendanceApi";
-
-const ACTIVITY = [
-  { id: 1, name: "Rahul Sharma",   action: "applied for Casual Leave",       time: "2m ago",  tone: "amber" },
-  { id: 2, name: "Priya Nair",     action: "approved Neha Gupta's leave",    time: "18m ago", tone: "teal"  },
-  { id: 3, name: "Vikram Rao",     action: "processed June payroll",         time: "1h ago",  tone: "blue"  },
-  { id: 4, name: "Aditi Rao",      action: "moved to Interview stage",       time: "2h ago",  tone: "slate" },
-  { id: 5, name: "Karan Shah",     action: "completed performance review",   time: "3h ago",  tone: "teal"  },
-];
+import { fetchJobs } from "../api/recruitmentApi";
 
 export default function DashboardPage({ setPage }) {
   const [employees,   setEmployees]   = useState([]);
   const [departments, setDepartments] = useState([]);
   const [leaves,      setLeaves]      = useState([]);
   const [attendance,  setAttendance]  = useState([]);
+  const [jobs,        setJobs]        = useState([]);
   const [loading,     setLoading]     = useState(true);
+  const [error,       setError]       = useState("");
+  const [apiAlert,    setApiAlert]    = useState(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -37,23 +32,86 @@ export default function DashboardPage({ setPage }) {
       fetchDepartments(),
       fetchLeaves(),
       fetchAttendance(),
-    ]).then(([empRes, deptRes, leaveRes, attRes]) => {
+      fetchJobs(),
+    ]).then(([empRes, deptRes, leaveRes, attRes, jobRes]) => {
       if (!isMounted) return;
+
+      // Check all results for 403 or subscription-expired errors
+      const allResults = [empRes, deptRes, leaveRes, attRes, jobRes];
+      for (const res of allResults) {
+        if (res.status === "rejected") {
+          const err = res.reason;
+          const status = err?.status;
+          const msg = (err?.message || "").toLowerCase();
+          const isSubscriptionExpired = status === 403 && (msg.includes("subscription") || msg.includes("expired") || msg.includes("plan"));
+
+          if (isSubscriptionExpired) {
+            setApiAlert({ type: "subscription", message: err.message || "Your subscription has expired. Please renew to continue." });
+            break;
+          } else if (status === 403) {
+            setApiAlert({ type: "403", message: err.message || "Access denied (403 Forbidden). You do not have permission to view this data." });
+            break;
+          }
+        }
+      }
+
       if (empRes.status   === "fulfilled") setEmployees(  Array.isArray(empRes.value)   ? empRes.value   : empRes.value?.results   || []);
       if (deptRes.status  === "fulfilled") setDepartments(Array.isArray(deptRes.value)  ? deptRes.value  : deptRes.value?.results  || []);
       if (leaveRes.status === "fulfilled") setLeaves(     Array.isArray(leaveRes.value) ? leaveRes.value : leaveRes.value?.results || []);
       if (attRes.status   === "fulfilled") setAttendance( Array.isArray(attRes.value)   ? attRes.value   : attRes.value?.results   || []);
+      if (jobRes.status   === "fulfilled") setJobs(       Array.isArray(jobRes.value)   ? jobRes.value   : jobRes.value?.results   || []);
     }).finally(() => { if (isMounted) setLoading(false); });
 
     return () => { isMounted = false; };
   }, []);
 
   const headcountTrend = [
-    { month: "Feb", count: 172 }, { month: "Mar", count: 178 }, { month: "Apr", count: 183 },
-    { month: "May", count: 189 }, { month: "Jun", count: 196 }, { month: "Jul", count: employees.length + 172 },
+    { month: "Jun", count: Math.max(1, employees.length > 1 ? employees.length - 1 : 1) },
+    { month: "Jul", count: Math.max(1, employees.length > 1 ? employees.length - 1 : 1) },
+    { month: "Aug", count: employees.length },
+    { month: "Sep", count: employees.length },
+    { month: "Oct", count: employees.length },
   ];
 
-  const deptData      = departments.map((d) => ({ name: d.name.split(" ")[0], value: employees.filter((e) => e.department === d.name).length, color: d.color }));
+  const activities = [];
+  leaves.slice(0, 3).forEach((l, idx) => {
+    activities.push({
+      id: `l-${l.id || idx}`,
+      name: l.name || "Employee",
+      action: `${l.status === "Approved" ? "approved for" : (l.status === "Rejected" ? "request rejected for" : "applied for")} ${l.type || "Leave"} (${l.days || 1}d)`,
+      time: "Recent",
+      tone: l.status === "Approved" ? "teal" : (l.status === "Rejected" ? "coral" : "amber"),
+    });
+  });
+  employees.slice(0, 3).forEach((e, idx) => {
+    activities.push({
+      id: `e-${e.id || idx}`,
+      name: e.name,
+      action: `active as ${e.role || "Team Member"} in ${e.department || "Engineering"}`,
+      time: "Current",
+      tone: "blue",
+    });
+  });
+  if (activities.length === 0) {
+    activities.push({
+      id: "init-1",
+      name: "HR Operations",
+      action: "workforce and employee roster synchronized",
+      time: "Now",
+      tone: "teal",
+    });
+  }
+
+  const deptData = departments.map((d) => ({
+    name: d.name.split(" ")[0],
+    value: employees.filter((e) =>
+      e.department === d.name ||
+      e.department === d.id ||
+      (e.department_name && e.department_name.toLowerCase() === d.name.toLowerCase()) ||
+      (typeof e.department === "string" && e.department.toLowerCase() === d.name.toLowerCase())
+    ).length,
+    color: d.color,
+  }));
   const pendingLeaves = leaves.filter((l) => l.status === "Pending").slice(0, 5);
   const presentToday  = attendance.filter((a) => a.status === "Present" || a.status === "WFH").length;
 
@@ -74,8 +132,104 @@ export default function DashboardPage({ setPage }) {
     );
   }
 
+  const isSubscriptionAlert = apiAlert?.type === "subscription";
+
   return (
     <div className="page-enter">
+      {/* ── API Alert Banner ── */}
+      {apiAlert && (
+        <div
+          role="alert"
+          style={{
+            display: "flex",
+            alignItems: "flex-start",
+            gap: 12,
+            padding: "14px 18px",
+            marginBottom: 20,
+            borderRadius: 12,
+            border: `1.5px solid ${isSubscriptionAlert ? C.amber : C.coral}`,
+            background: isSubscriptionAlert ? C.amberSoft : C.coralSoft,
+            animation: "slideDown 0.3s ease",
+          }}
+        >
+          {/* Icon */}
+          <div style={{
+            flexShrink: 0,
+            width: 36,
+            height: 36,
+            borderRadius: 8,
+            background: isSubscriptionAlert ? "#FBD97040" : "#F0806040",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}>
+            {isSubscriptionAlert
+              ? <CreditCard size={18} color={C.amber} />
+              : <AlertTriangle size={18} color={C.coral} />}
+          </div>
+
+          {/* Text */}
+          <div style={{ flex: 1 }}>
+            <p style={{
+              margin: 0,
+              fontFamily: "Sora, sans-serif",
+              fontWeight: 700,
+              fontSize: 13.5,
+              color: isSubscriptionAlert ? C.amber : C.coral,
+            }}>
+              {isSubscriptionAlert ? "Subscription Expired" : "Access Denied (403 Forbidden)"}
+            </p>
+            <p style={{
+              margin: "3px 0 0",
+              fontFamily: "Inter, sans-serif",
+              fontSize: 13,
+              color: C.ink,
+              opacity: 0.8,
+            }}>
+              {apiAlert.message}
+            </p>
+            {isSubscriptionAlert && (
+              <button
+                onClick={() => setPage("subscription")}
+                style={{
+                  marginTop: 8,
+                  padding: "5px 14px",
+                  borderRadius: 6,
+                  border: "none",
+                  background: C.amber,
+                  color: "#fff",
+                  fontFamily: "Inter, sans-serif",
+                  fontWeight: 600,
+                  fontSize: 12.5,
+                  cursor: "pointer",
+                }}
+              >
+                Renew Subscription →
+              </button>
+            )}
+          </div>
+
+          {/* Dismiss */}
+          <button
+            onClick={() => setApiAlert(null)}
+            title="Dismiss"
+            style={{
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              padding: 4,
+              borderRadius: 4,
+              display: "flex",
+              alignItems: "center",
+              color: C.slate,
+              flexShrink: 0,
+            }}
+          >
+            <X size={16} />
+          </button>
+        </div>
+      )}
+
       <PageHeader
         title="Dashboard"
         subtitle={today}
@@ -92,7 +246,7 @@ export default function DashboardPage({ setPage }) {
         <StatCard label="Total Employees"       value={employees.length}                                            delta="+4.2% this quarter" positive icon={Users}       accent={C.blue}  />
         <StatCard label="Present Today"         value={`${presentToday}/${attendance.length}`}                      delta="On track"           positive icon={CalendarCheck} accent={C.teal}  />
         <StatCard label="Pending Leave Requests" value={pendingLeaves.length}                                       delta="Needs review"  positive={false} icon={CalendarDays} accent={C.amber} />
-        <StatCard label="Open Positions"        value={JOBS_SEED.filter((j) => j.status === "Open").length}         delta="Across 4 depts"    positive icon={Briefcase}   accent={C.coral} />
+        <StatCard label="Open Positions"        value={jobs.filter((j) => j.status === "Open").length || 0}         delta="Active hiring"    positive icon={Briefcase}   accent={C.coral} />
       </div>
 
       {/* Charts row */}
@@ -144,8 +298,8 @@ export default function DashboardPage({ setPage }) {
         <Card>
           <p style={{ fontFamily: "Sora, sans-serif", fontWeight: 700, color: C.ink, margin: "0 0 14px" }}>Recent activity</p>
           <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
-            {ACTIVITY.map((a, i) => (
-              <div key={a.id} style={{ display: "flex", alignItems: "flex-start", gap: 10, padding: "10px 0", borderBottom: i < ACTIVITY.length - 1 ? `1px solid ${C.border}` : "none" }}>
+            {activities.map((a, i) => (
+              <div key={a.id} style={{ display: "flex", alignItems: "flex-start", gap: 10, padding: "10px 0", borderBottom: i < activities.length - 1 ? `1px solid ${C.border}` : "none" }}>
                 <Avatar name={a.name} size={28} />
                 <div style={{ flex: 1 }}>
                   <span style={{ fontFamily: "Inter, sans-serif", fontSize: 12.5, fontWeight: 600, color: C.ink }}>{a.name} </span>

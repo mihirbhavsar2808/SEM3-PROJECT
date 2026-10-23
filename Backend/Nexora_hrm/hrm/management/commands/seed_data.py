@@ -12,21 +12,21 @@ from accounts.models import User
 
 
 class Command(BaseCommand):
-    help = "Seed Nexora HRM with demo data"
+    help = "Seed ORbit HRM with demo data"
 
     def handle(self, *args, **kwargs):
-        self.stdout.write("Seeding Nexora HRM demo data...")
+        self.stdout.write("Seeding ORbit HRM demo data...")
 
         # ── Superuser ─────────────────────────────────────────────────────────
-        if not User.objects.filter(email="admin@nexorahrm.com").exists():
+        if not User.objects.filter(email="admin@orbithrm.com").exists():
             User.objects.create_superuser(
-                email="admin@nexorahrm.com",
+                email="admin@orbithrm.com",
                 password="admin123",
-                first_name="Priya",
-                last_name="Nair",
+                first_name="Admin",
+                last_name="System",
                 role="hr",
             )
-            self.stdout.write("  Created superuser: admin@nexorahrm.com / admin123")
+            self.stdout.write("  Created superuser: admin@orbithrm.com / admin123")
 
         # ── Shifts ────────────────────────────────────────────────────────────
         shifts_data = [
@@ -80,21 +80,21 @@ class Command(BaseCommand):
 
         # ── Employees ─────────────────────────────────────────────────────────
         employees_data = [
-            ("Aarav Sharma",    "aarav.sharma@nexorahrm.com",    "+91 9800000001", "Software Engineer",    "Engineering",     "Active",   date(2021, 3, 15), 75000, "Bengaluru"),
-            ("Vivaan Verma",    "vivaan.verma@nexorahrm.com",    "+91 9800000002", "Product Manager",      "Engineering",     "Active",   date(2020, 7, 1),  95000, "Pune"),
-            ("Aditya Gupta",    "aditya.gupta@nexorahrm.com",    "+91 9800000003", "QA Engineer",          "Engineering",     "Active",   date(2022, 1, 10), 60000, "Bengaluru"),
-            ("Neha Iyer",       "neha.iyer@nexorahrm.com",       "+91 9800000004", "Sales Executive",      "Sales",           "Active",   date(2021, 6, 20), 55000, "Ahmedabad"),
-            ("Priya Nair",      "priya.nair@nexorahrm.com",      "+91 9800000005", "HR Manager",           "Human Resources", "Active",   date(2019, 4, 5),  85000, "Ahmedabad"),
-            ("Karan Shah",      "karan.shah@nexorahrm.com",      "+91 9800000006", "Marketing Analyst",    "Marketing",       "Active",   date(2022, 9, 1),  58000, "Mumbai"),
-            ("Rahul Rao",       "rahul.rao@nexorahrm.com",       "+91 9800000007", "Financial Analyst",    "Finance",         "Active",   date(2021, 11, 15),70000, "Mumbai"),
-            ("Ananya Malhotra", "ananya.malhotra@nexorahrm.com", "+91 9800000008", "Support Lead",         "Support",         "Active",   date(2020, 2, 28), 62000, "Remote"),
-            ("Diya Shah",       "diya.shah@nexorahrm.com",       "+91 9800000009", "Content Writer",       "Marketing",       "On Leave", date(2023, 1, 3),  48000, "Pune"),
-            ("Ishaan Desai",    "ishaan.desai@nexorahrm.com",    "+91 9800000010", "Sales Manager",        "Sales",           "Active",   date(2020, 8, 12), 88000, "Ahmedabad"),
-            ("Kabir Kapoor",    "kabir.kapoor@nexorahrm.com",    "+91 9800000011", "Software Engineer",    "Engineering",     "Active",   date(2023, 3, 20), 72000, "Bengaluru"),
-            ("Meera Menon",     "meera.menon@nexorahrm.com",     "+91 9800000012", "HR Specialist",        "Human Resources", "Active",   date(2022, 5, 10), 56000, "Ahmedabad"),
-            ("Rohan Bhat",      "rohan.bhat@nexorahrm.com",      "+91 9800000013", "Accountant",           "Finance",         "Inactive", date(2021, 7, 7),  52000, "Mumbai"),
-            ("Sara Chatterjee", "sara.chatterjee@nexorahrm.com", "+91 9800000014", "Support Engineer",     "Support",         "Active",   date(2022, 11, 1), 50000, "Remote"),
-            ("Tara Reddy",      "tara.reddy@nexorahrm.com",      "+91 9800000015", "Software Engineer",    "Engineering",     "Active",   date(2023, 6, 15), 68000, "Bengaluru"),
+            ("Aarav Sharma",    "aarav.sharma@orbithrm.com",    "+91 9800000001", "Software Engineer",    "Engineering",     "Active",   date(2021, 3, 15), 75000, "Bengaluru"),
+            ("Vivaan Verma",    "vivaan.verma@orbithrm.com",    "+91 9800000002", "Product Manager",      "Engineering",     "Active",   date(2020, 7, 1),  95000, "Pune"),
+            ("Aditya Gupta",    "aditya.gupta@orbithrm.com",    "+91 9800000003", "QA Engineer",          "Engineering",     "Active",   date(2022, 1, 10), 60000, "Bengaluru"),
+            ("Neha Iyer",       "neha.iyer@orbithrm.com",       "+91 9800000004", "Sales Executive",      "Sales",           "Active",   date(2021, 6, 20), 55000, "Ahmedabad"),
+            ("Priya Nair",      "priya.nair@orbithrm.com",      "+91 9800000005", "HR Manager",           "Human Resources", "Active",   date(2019, 4, 5),  85000, "Ahmedabad"),
+            ("Karan Shah",      "karan.shah@orbithrm.com",      "+91 9800000006", "Marketing Analyst",    "Marketing",       "Active",   date(2022, 9, 1),  58000, "Mumbai"),
+            ("Rahul Rao",       "rahul.rao@orbithrm.com",       "+91 9800000007", "Financial Analyst",    "Finance",         "Active",   date(2021, 11, 15),70000, "Mumbai"),
+            ("Ananya Malhotra", "ananya.malhotra@orbithrm.com", "+91 9800000008", "Support Lead",         "Support",         "Active",   date(2020, 2, 28), 62000, "Remote"),
+            ("Diya Shah",       "diya.shah@orbithrm.com",       "+91 9800000009", "Content Writer",       "Marketing",       "On Leave", date(2023, 1, 3),  48000, "Pune"),
+            ("Ishaan Desai",    "ishaan.desai@orbithrm.com",    "+91 9800000010", "Sales Manager",        "Sales",           "Active",   date(2020, 8, 12), 88000, "Ahmedabad"),
+            ("Kabir Kapoor",    "kabir.kapoor@orbithrm.com",    "+91 9800000011", "Software Engineer",    "Engineering",     "Active",   date(2023, 3, 20), 72000, "Bengaluru"),
+            ("Meera Menon",     "meera.menon@orbithrm.com",     "+91 9800000012", "HR Specialist",        "Human Resources", "Active",   date(2022, 5, 10), 56000, "Ahmedabad"),
+            ("Rohan Bhat",      "rohan.bhat@orbithrm.com",      "+91 9800000013", "Accountant",           "Finance",         "Inactive", date(2021, 7, 7),  52000, "Mumbai"),
+            ("Sara Chatterjee", "sara.chatterjee@orbithrm.com", "+91 9800000014", "Support Engineer",     "Support",         "Active",   date(2022, 11, 1), 50000, "Remote"),
+            ("Tara Reddy",      "tara.reddy@orbithrm.com",      "+91 9800000015", "Software Engineer",    "Engineering",     "Active",   date(2023, 6, 15), 68000, "Bengaluru"),
         ]
         employees = []
         for name, email, phone, role, dept_name, status, join_date, salary, location in employees_data:
@@ -313,4 +313,4 @@ class Command(BaseCommand):
             )
 
         self.stdout.write(self.style.SUCCESS("Demo data seeded successfully!"))
-        self.stdout.write("  Login: admin@nexorahrm.com / admin123")
+        self.stdout.write("  Login: admin@orbithrm.com / admin123")

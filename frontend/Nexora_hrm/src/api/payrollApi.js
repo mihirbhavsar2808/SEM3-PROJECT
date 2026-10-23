@@ -24,3 +24,24 @@ export async function generatePayroll(month) {
     body: JSON.stringify({ month }),
   });
 }
+
+export async function sendPayslipEmail(id) {
+  return request(`/payroll/${id}/send_payslip/`, {
+    method: "POST",
+  });
+}
+
+export async function bulkSendPayslips(month) {
+  return request("/payroll/bulk_send_payslips/", {
+    method: "POST",
+    body: JSON.stringify({ month }),
+  });
+}
+
+export async function bulkMarkPayrollPaid(month) {
+  return request("/payroll/bulk_mark_paid/", {
+    method: "POST",
+    body: JSON.stringify({ month }),
+  });
+}
+

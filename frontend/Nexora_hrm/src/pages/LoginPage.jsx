@@ -1,13 +1,15 @@
-  import React, { useState } from "react";
+import React, { useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
 import { C } from "../constants/theme";
 import { Input } from "../components/ui";
 import { loginApi } from "../api/auth";
 
 export default function LoginPage({ onLogin, onNavigateSignup }) {
-  const [email,    setEmail]    = useState("admin@nexorahrm.com");
-  const [password, setPassword] = useState("admin123");
-  const [error,    setError]    = useState("");
-  const [loading,  setLoading]  = useState(false);
+  const [email,        setEmail]        = useState("");
+  const [password,     setPassword]     = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [error,        setError]        = useState("");
+  const [loading,      setLoading]      = useState(false);
 
   async function submit(e) {
     e.preventDefault();
@@ -21,12 +23,10 @@ export default function LoginPage({ onLogin, onNavigateSignup }) {
       onLogin(res.user);
     } catch (err) {
       setLoading(false);
-      // Fallback mode if dev backend server is temporarily unreached or invalid demo login
-      if (err.message && err.message.includes("401")) {
-        setError("Invalid email or password. Use admin@nexorahrm.com / admin123");
+      if (err.status === 401) {
+        setError("Invalid email or password.");
       } else {
-        // Dev fallback if offline
-        onLogin({ email, first_name: "Admin", last_name: "User" });
+        setError("Unable to connect to the server. Please try again.");
       }
     }
   }
@@ -38,17 +38,44 @@ export default function LoginPage({ onLogin, onNavigateSignup }) {
         <div style={{ width: 380, maxWidth: "100%" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 30 }}>
             <div style={{ width: 34, height: 34, borderRadius: 8, background: C.ink, display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <span style={{ color: C.teal, fontFamily: "Sora, sans-serif", fontWeight: 800 }}>N</span>
+              <span style={{ color: C.teal, fontFamily: "Sora, sans-serif", fontWeight: 800 }}>O</span>
             </div>
-            <span style={{ fontFamily: "Sora, sans-serif", fontWeight: 700, fontSize: 18, color: C.ink }}>Nexora HRM</span>
+            <span style={{ fontFamily: "Sora, sans-serif", fontWeight: 700, fontSize: 18, color: C.ink }}>ORbit HRM</span>
           </div>
 
           <h1 style={{ fontFamily: "Sora, sans-serif", fontSize: 26, fontWeight: 700, color: C.ink, margin: "0 0 6px" }}>Welcome back</h1>
           <p style={{ color: C.slate, fontSize: 13.5, margin: "0 0 26px" }}>Sign in to manage your workforce.</p>
 
           <form onSubmit={submit}>
-            <Input label="Work email"  type="email"    value={email}    onChange={(e) => setEmail(e.target.value)}    placeholder="you@company.com" />
-            <Input label="Password"    type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Enter password" />
+            <Input label="Work email"  type="email"    value={email}    onChange={(e) => setEmail(e.target.value)}    placeholder="work@gmail.com" />
+            <Input
+              label="Password"
+              type={showPassword ? "text" : "password"}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Enter Your Password"
+              rightElement={
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  title={showPassword ? "Hide password" : "Show password"}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    cursor: "pointer",
+                    padding: 4,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: showPassword ? C.teal : C.slateLight,
+                    transition: "color 0.15s ease",
+                  }}
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              }
+            />
             {error && <p style={{ color: C.coral, fontSize: 12.5, marginTop: -6, marginBottom: 14 }}>{error}</p>}
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18 }}>
               <label style={{ fontSize: 12.5, color: C.slate, display: "flex", gap: 6, alignItems: "center" }}>
@@ -60,8 +87,57 @@ export default function LoginPage({ onLogin, onNavigateSignup }) {
               {loading ? "Signing in..." : "Sign in"}
             </button>
           </form>
-          {/* <p style={{ fontSize: 12, color: C.slateLight, marginTop: 20 }}>Backend Demo: <b>admin@nexorahrm.com</b> / <b>admin123</b></p> */}
-          <p style={{ fontSize: 13.5, color: C.slate, textAlign: "center", marginTop: 20 }}>
+
+          {/* Quick Demo Selection */}
+          <div style={{ marginTop: 22, padding: "14px", background: "#ffffff", border: `1px solid ${C.border}`, borderRadius: 10 }}>
+            <div style={{ fontSize: 11.5, fontWeight: 700, color: C.slateLight, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 8 }}>
+              ⚡ One-Click Demo Logins
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+              <button
+                type="button"
+                onClick={() => {
+                  setEmail("admin@orbithrm.com");
+                  setPassword("admin123");
+                }}
+                style={{
+                  padding: "7px 10px",
+                  borderRadius: 6,
+                  border: "1px solid #a7f3d0",
+                  background: "#f0fdf4",
+                  color: "#047857",
+                  fontSize: 12,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  fontFamily: "Inter, sans-serif",
+                }}
+              >
+                🛡️ Admin Demo
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setEmail("mihirbhavsar262@gmail.com");
+                  setPassword("Employee@123");
+                }}
+                style={{
+                  padding: "7px 10px",
+                  borderRadius: 6,
+                  border: "1px solid #bfdbfe",
+                  background: "#eff6ff",
+                  color: "#1d4ed8",
+                  fontSize: 12,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  fontFamily: "Inter, sans-serif",
+                }}
+              >
+                👤 Employee Demo
+              </button>
+            </div>
+          </div>
+
+          <p style={{ fontSize: 13.5, color: C.slate, textAlign: "center", marginTop: 18 }}>
             Don't have an account?{" "}
             <span onClick={onNavigateSignup} style={{ color: C.teal, fontWeight: 600, cursor: "pointer" }}>
               Sign up
@@ -69,6 +145,7 @@ export default function LoginPage({ onLogin, onNavigateSignup }) {
           </p>
         </div>
       </div>
+
 
       {/* Right panel */}
       <div style={{ flex: 1, background: C.ink, display: "flex", alignItems: "center", justifyContent: "center", position: "relative", overflow: "hidden" }}>

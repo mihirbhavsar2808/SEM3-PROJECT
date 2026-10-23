@@ -6,7 +6,7 @@ from .views import (
     ExpenseViewSet, HealthCheckView, HolidayViewSet, JobViewSet,
     LeaveBalanceViewSet, LeaveRequestViewSet, LeaveTypeViewSet, OvertimeViewSet,
     PayrollViewSet, PerformanceReviewViewSet, ShiftViewSet,
-    TrainingEnrollmentViewSet, TrainingViewSet,
+    TrainingEnrollmentViewSet, TrainingViewSet, NotificationsView,
 )
 
 router = DefaultRouter()
@@ -33,5 +33,6 @@ router.register("announcements",         AnnouncementViewSet,       basename="an
 urlpatterns = [
     path("health/",          HealthCheckView.as_view(),    name="health"),
     path("dashboard/stats/", DashboardStatsView.as_view(), name="dashboard-stats"),
+    path("notifications/",   NotificationsView.as_view(),  name="notifications"),
     path("",                 include(router.urls)),
 ]

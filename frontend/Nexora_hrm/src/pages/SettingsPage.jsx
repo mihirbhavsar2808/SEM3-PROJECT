@@ -21,18 +21,18 @@ export default function SettingsPage() {
       <Card style={{ maxWidth: 560 }}>
         {tab === "Company" && (
           <>
-            <Input  label="Company name"  defaultValue="Nexora HRM Pvt Ltd" />
+            <Input  label="Company name"  defaultValue="ORbit HRM Pvt Ltd" />
             <Input label="Enter password" placeholder="••••••••" type="password"/>
-            <Input  label="Support email" defaultValue="hr@nexorahrm.com" />
+            <Input  label="Support email" defaultValue="hr@orbithrm.com" />
             <Select label="Time zone"     defaultValue="IST (UTC+5:30)" options={["IST (UTC+5:30)", "PST (UTC-8:00)", "GMT (UTC+0:00)"]} />
             <Select label="Work week"     defaultValue="Mon – Fri"       options={["Mon – Fri", "Mon – Sat"]} />
             <Button variant="primary">Save changes</Button>
           </>
         )}{tab === "Users" && (
           <>
-            <Input  label="Company name"  defaultValue="Nexora HRM Pvt Ltd" />
+            <Input  label="Company name"  defaultValue="ORbit HRM Pvt Ltd" />
             <Input label="Enter password" placeholder="••••••••" type="password"/>
-            <Input  label="Support email" defaultValue="hr@nexorahrm.com" />
+            <Input  label="Support email" defaultValue="hr@orbithrm.com" />
             <Select label="Time zone"     defaultValue="IST (UTC+5:30)" options={["IST (UTC+5:30)", "PST (UTC-8:00)", "GMT (UTC+0:00)"]} />
             <Select label="Work week"     defaultValue="Mon – Fri"       options={["Mon – Fri", "Mon – Sat"]} />
             <Button variant="primary">Save changes</Button>
@@ -41,11 +41,11 @@ export default function SettingsPage() {
         {tab === "Profile" && (
           <>
             <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 18 }}>
-              <Avatar name="Priya Nair" size={56} />
+              <Avatar name="Admin" size={56} />
               <Button variant="outline" small>Change photo</Button>
             </div>
-            <Input label="Full name" defaultValue="Priya Nair" />
-            <Input label="Email"     defaultValue="priya.nair@nexorahrm.com" />
+            <Input label="Full name" defaultValue="System Admin" />
+            <Input label="Email"     defaultValue="admin@orbithrm.com" />
             <Input label="Role"      defaultValue="HR Administrator" disabled />
             <Button variant="primary">Update profile</Button>
           </>

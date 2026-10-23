@@ -22,7 +22,7 @@ export function genEmployees(n) {
     return {
       id:         "E" + (1000 + i),
       name:       `${first} ${last}`,
-      email:      `${first.toLowerCase()}.${last.toLowerCase()}@nexorahrm.com`,
+      email:      `${first.toLowerCase()}.${last.toLowerCase()}@orbithrm.com`,
       phone:      `+91 9${(800000000 + i * 137).toString().slice(0, 9)}`,
       role:       ROLES[i % ROLES.length],
       department: dept.name,

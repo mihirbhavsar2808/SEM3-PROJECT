@@ -8,6 +8,7 @@ export async function loginApi(email, password) {
   if (data?.access && data?.refresh) {
     setTokens(data.access, data.refresh);
     if (data.user) {
+      localStorage.setItem("orbit_user", JSON.stringify(data.user));
       localStorage.setItem("nexora_user", JSON.stringify(data.user));
     }
   }
@@ -22,6 +23,7 @@ export async function registerApi(first_name, last_name, email, password) {
   if (data?.access && data?.refresh) {
     setTokens(data.access, data.refresh);
     if (data.user) {
+      localStorage.setItem("orbit_user", JSON.stringify(data.user));
       localStorage.setItem("nexora_user", JSON.stringify(data.user));
     }
   }
@@ -34,7 +36,7 @@ export async function getMeApi() {
 
 export async function logoutApi() {
   try {
-    const refresh = localStorage.getItem("nexora_refresh_token");
+    const refresh = localStorage.getItem("orbit_refresh_token") || localStorage.getItem("nexora_refresh_token");
     if (refresh) {
       await request("/auth/logout/", {
         method: "POST",
@@ -49,7 +51,7 @@ export async function logoutApi() {
 }
 
 export function getCurrentStoredUser() {
-  const raw = localStorage.getItem("nexora_user");
+  const raw = localStorage.getItem("orbit_user") || localStorage.getItem("nexora_user");
   if (!raw) return null;
   try {
     return JSON.parse(raw);
